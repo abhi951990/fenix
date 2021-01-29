@@ -8,11 +8,14 @@ import androidx.preference.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.hasSibling
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
@@ -25,10 +28,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
+import org.mozilla.fenix.helpers.TestHelper.scrollToElementByText
 import org.mozilla.fenix.helpers.assertIsChecked
 import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.isChecked
 import org.mozilla.fenix.helpers.isEnabled
+import org.mozilla.fenix.helpers.isSelected
 
 /**
  * Implementation of Robot Pattern for the settings Enhanced Tracking Protection sub menu.
@@ -49,9 +54,9 @@ class SettingsSubMenuEnhancedTrackingProtectionRobot {
 
     fun verifyEnhancedTrackingProtectionOptionsGrayedOut() = assertEnhancedTrackingProtectionOptionsGrayedOut()
 
-    fun verifyEnhancedTrackingProtectionDefaults() = assertEnhancedTrackingProtectionDefaults()
+    fun verifyTrackingProtectionSwitchEnabled() = assertTrackingProtectionSwitchEnabled()
 
-    fun clickEnhancedTrackingProtectionDefaults() = onView(withResourceName("switch_widget")).click()
+    fun switchEnhancedTrackingProtectionToggle() = onView(withResourceName("switch_widget")).click()
 
     fun verifyRadioButtonDefaults() = assertRadioButtonDefaults()
 
@@ -60,10 +65,14 @@ class SettingsSubMenuEnhancedTrackingProtectionRobot {
         verifyEnhancedTrackingProtectionHeaderDescription()
         verifyLearnMoreText()
         verifyEnhancedTrackingProtectionTextWithSwitchWidget()
-        verifyEnhancedTrackingProtectionDefaults()
+        verifyTrackingProtectionSwitchEnabled()
         verifyRadioButtonDefaults()
         verifyEnhancedTrackingProtectionOptions()
     }
+
+    fun verifyCustomTrackingProtectionSettings() = assertCustomTrackingProtectionSettings()
+
+    fun selectTrackingProtectionOption(option: String) = onView(withText(option)).click()
 
     class Transition {
         val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())!!
@@ -183,7 +192,7 @@ private fun assertEnhancedTrackingProtectionOptionsGrayedOut() {
         .check(matches(not(isEnabled(true))))
 }
 
-private fun assertEnhancedTrackingProtectionDefaults() {
+private fun assertTrackingProtectionSwitchEnabled() {
     onView(withResourceName("switch_widget")).check(
         matches(
             isChecked(
@@ -218,3 +227,28 @@ private fun goBackButton() =
 
 private fun openExceptions() =
     onView(allOf(withText("Exceptions")))
+
+private fun assertCustomTrackingProtectionSettings() {
+    scrollToElementByText("Redirect Trackers")
+
+    val cookiesCheckbox = onView(withText("Cookies"))
+    cookiesCheckbox.check(matches(isDisplayed()))
+
+    val cookiesDropDownMenuDefault = onView(withText("All cookies (will cause websites to break)"))
+    cookiesDropDownMenuDefault.check(matches(isDisplayed()))
+
+    val trackingContentCheckbox = onView(withText("Tracking content"))
+    trackingContentCheckbox.check(matches(isDisplayed()))
+
+    val trackingcontentDropDownDefault = onView(withText("In all tabs"))
+    trackingcontentDropDownDefault.check(matches(isDisplayed()))
+
+    val cryptominersCheckbox = onView(withText("Cryptominers"))
+    cryptominersCheckbox.check(matches(isDisplayed()))
+
+    val fingerprintersCheckbox = onView(withText("Fingerprinters"))
+    fingerprintersCheckbox.check(matches(isDisplayed()))
+
+    val redirectTrackersCheckbox = onView(withText("Redirect Trackers"))
+    redirectTrackersCheckbox.check(matches(isDisplayed()))
+}

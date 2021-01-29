@@ -7,12 +7,17 @@ package org.mozilla.fenix.ui
 import android.view.View
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,11 +27,13 @@ import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.RecyclerViewIdlingResource
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.helpers.TestHelper.deleteDownloadFromStorage
 import org.mozilla.fenix.helpers.ViewVisibilityIdlingResource
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.clickUrlbar
+import org.mozilla.fenix.ui.robots.dismissTrackingOnboarding
 import org.mozilla.fenix.ui.robots.downloadRobot
 import org.mozilla.fenix.ui.robots.enhancedTrackingProtection
 import org.mozilla.fenix.ui.robots.homeScreen
@@ -371,7 +378,7 @@ class SmokeTest {
         }.openThreeDotMenu {
         }.openSettings {
         }.openEnhancedTrackingProtectionSubMenu {
-            clickEnhancedTrackingProtectionDefaults()
+            switchEnhancedTrackingProtectionToggle()
             verifyEnhancedTrackingProtectionOptionsGrayedOut()
         }.goBackToHomeScreen {
             navigationToolbar {
@@ -380,7 +387,7 @@ class SmokeTest {
             }.openThreeDotMenu {
             }.openSettings {
             }.openEnhancedTrackingProtectionSubMenu {
-                clickEnhancedTrackingProtectionDefaults()
+                switchEnhancedTrackingProtectionToggle()
             }.goBack {
             }.goBackToBrowser {
                 clickEnhancedTrackingProtectionPanel()
@@ -389,6 +396,34 @@ class SmokeTest {
             }
         }
     }
+
+    @Test
+    fun customTrackingProtectionSettingsTest() {
+        val etpTestPage = TestAssetHelper.getEnhancedTrackingProtectionAsset(mockWebServer)
+
+        homeScreen {
+        }.openThreeDotMenu {
+        }.openSettings {
+        }.openEnhancedTrackingProtectionSubMenu {
+            verifyEnhancedTrackingProtectionOptions()
+            selectTrackingProtectionOption("Custom")
+            verifyCustomTrackingProtectionSettings()
+        }.goBackToHomeScreen {}
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(etpTestPage.url) {
+        }
+
+        enhancedTrackingProtection {
+            dismissTrackingOnboarding()
+        }.openEnhancedTrackingProtectionSheet {
+            verifyTrackingCookiesBlocked()
+            verifyCryptominersBlocked()
+            verifyFingerprintersBlocked()
+            verifyBasicLevelTrackingContentBlocked()
+        }
+    }
+
 
     @Test
     // Verifies changing the default engine from the Search Shortcut menu
