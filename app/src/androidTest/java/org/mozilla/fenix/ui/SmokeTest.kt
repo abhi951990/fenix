@@ -7,17 +7,12 @@ package org.mozilla.fenix.ui
 import android.view.View
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -27,7 +22,6 @@ import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.RecyclerViewIdlingResource
 import org.mozilla.fenix.helpers.TestAssetHelper
-import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.helpers.TestHelper.deleteDownloadFromStorage
 import org.mozilla.fenix.helpers.ViewVisibilityIdlingResource
@@ -399,7 +393,7 @@ class SmokeTest {
 
     @Test
     fun customTrackingProtectionSettingsTest() {
-        val etpTestPage = TestAssetHelper.getEnhancedTrackingProtectionAsset(mockWebServer)
+        val trackingPage = TestAssetHelper.getEnhancedTrackingProtectionAsset(mockWebServer)
 
         homeScreen {
         }.openThreeDotMenu {
@@ -411,8 +405,7 @@ class SmokeTest {
         }.goBackToHomeScreen {}
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(etpTestPage.url) {
-        }
+        }.enterURLAndEnterToBrowser(trackingPage.url) {}
 
         enhancedTrackingProtection {
             dismissTrackingOnboarding()
